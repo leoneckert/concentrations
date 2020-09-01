@@ -61,10 +61,13 @@ function showInfo(data, tabletop) {
   // alert("Successfully processed!"); // check if data is imported
 }
 
+let activeConcentrations = []
 let activeSelection = []
 function addButton(columnName) {
+  console.log(columnName)
   const name = columnName.split("$")[0]
-  const cat = columnName.split("$")[1]
+  let cat = columnName.split("$")[1]==undefined?"all":columnName.split("$")[1];
+
   const newButton = document.createElement("BUTTON");
   const newButtonContent = document.createTextNode(name);
 
@@ -77,6 +80,7 @@ function addButton(columnName) {
         btnClassArray[i].classList.remove("active");
       }
       activeSelection = ["All"]
+      activeConcentrations = ["All"]
     }else{
       let btnClassArray = document.getElementsByClassName("btn");
       for (let i = 0; i < btnClassArray.length; i++) {
@@ -85,6 +89,10 @@ function addButton(columnName) {
         }
       }
     }
+    // if(newButton.classList.contains("conc")){
+    //   if(activeConcentrations[0] == "All")
+    // }
+
     if(newButton.classList.contains("active")){
       newButton.classList.remove("active");
       activeSelection.remove(columnName)
@@ -97,7 +105,8 @@ function addButton(columnName) {
     // btnOff(); // turns off all active buttons
      // turn this button on
   });
-  document.getElementById("myBtnContainer").appendChild(newButton);
+  cat = cat=="all"?"conc":cat;
+  document.getElementById(cat+"-button-container").appendChild(newButton);
 }
 
 function btnOff() {
