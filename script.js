@@ -1,5 +1,6 @@
 // editable info
 
+
 const publicSpreadsheetUrl =
   "https://docs.google.com/spreadsheets/d/1eP_MFBFQDHgqUHS1w1rA7Mql-ljVVhomrhcHmf7eIP4/edit?usp=sharing"; // change this to your own URL
 const categoryStartNum = 3; // let the program know where the categoy begins on the spreadsheet column. Default value is 3.
@@ -46,7 +47,7 @@ function showInfo(data, tabletop) {
     let checkedCats = []
     for (let i = categoryStartNum; i < columnArray.length; i++) {
       if (data[j][columnName[i]] == checked) {
-        checkedCats.push(columnName[i])
+        checkedCats.push(columnName[i].trim().split(" ").join(""))
       }
       
     }
@@ -64,8 +65,10 @@ function showInfo(data, tabletop) {
 let activeConcentrations = []
 let activeSelection = []
 function addButton(columnName) {
-  console.log(columnName)
+  // console.log(columnName)
   const name = columnName.split("$")[0]
+  columnName = columnName.trim().split(" ").join("")
+
   let cat = columnName.split("$")[1]==undefined?"all":columnName.split("$")[1];
 
   const newButton = document.createElement("BUTTON");
@@ -74,34 +77,109 @@ function addButton(columnName) {
   newButton.appendChild(newButtonContent);
   newButton.className = "btn " + cat;
   newButton.addEventListener("click", function() {
+
     if(newButton.innerHTML == "All"){
+      activeSelection = [];
       let btnClassArray = document.getElementsByClassName("btn");
       for (let i = 0; i < btnClassArray.length; i++) {
         btnClassArray[i].classList.remove("active");
       }
-      activeSelection = ["All"]
-      activeConcentrations = ["All"]
-    }else{
-      let btnClassArray = document.getElementsByClassName("btn");
-      for (let i = 0; i < btnClassArray.length; i++) {
-        if(btnClassArray[i].innerHTML == "All"){
-          btnClassArray[i].classList.remove("active");
+      // activeSelection = ["All"];
+      activeConcentrations = ["All"];
+
+      filterButtons()
+      filterSelection();
+
+    }else if(newButton.classList.contains("conc")){
+      activeSelection = [];
+
+      if(newButton.classList.contains("active")){
+        newButton.classList.remove("active");
+        activeConcentrations.remove(columnName);
+        if(activeConcentrations.length == 0){
+          activeConcentrations = ["All"]
+        }
+      }else{
+        newButton.classList.add("active");
+        
+        if(activeConcentrations[0] == "All"){
+          activeConcentrations = [columnName];
+        }else{
+          activeConcentrations.push(columnName);
         }
       }
-    }
-    // if(newButton.classList.contains("conc")){
-    //   if(activeConcentrations[0] == "All")
-    // }
+     
+      let prereqButtons = document.getElementsByClassName("prereq");
+      for (let i = 0; i < prereqButtons.length; i++) {
+        prereqButtons[i].classList.remove("active");
+      }
+      let toolButtons = document.getElementsByClassName("tool");
+      for (let i = 0; i < toolButtons.length; i++) {
+        toolButtons[i].classList.remove("active");
+      }
 
-    if(newButton.classList.contains("active")){
-      newButton.classList.remove("active");
-      activeSelection.remove(columnName)
+      
+      // activeSelection = activeConcentrations;
+      filterButtons()
+      filterSelection();
+      
     }else{
-      newButton.classList.add("active");
-      activeSelection.push(columnName)
+      if(newButton.classList.contains("active")){
+        newButton.classList.remove("active");
+        activeSelection.remove(columnName)
+      }else{
+        newButton.classList.add("active");
+        activeSelection.push(columnName)
+      }
+      filterSelection();
     }
-    filterSelection(columnName);
-    console.log(activeSelection)
+
+
+
+    // if(newButton.innerHTML == "All"){
+    //   let btnClassArray = document.getElementsByClassName("btn");
+    //   for (let i = 0; i < btnClassArray.length; i++) {
+    //     btnClassArray[i].classList.remove("active");
+    //   }
+    //   activeSelection = ["All"]
+    //   activeConcentrations = ["All"]
+    // }else{
+    //   let btnClassArray = document.getElementsByClassName("btn");
+    //   for (let i = 0; i < btnClassArray.length; i++) {
+    //     if(btnClassArray[i].innerHTML == "All"){
+    //       btnClassArray[i].classList.remove("active");
+    //     }
+    //   }
+    // }
+    // if(newButton.classList.contains("conc")){
+    //   activeSelection = [];
+     
+    //   let prereqButtons = document.getElementsByClassName("prereq");
+    //   for (let i = 0; i < prereqButtons.length; i++) {
+    //     prereqButtons[i].classList.remove("active");
+    //   }
+    //   let toolButtons = document.getElementsByClassName("tool");
+    //   for (let i = 0; i < toolButtons.length; i++) {
+    //     toolButtons[i].classList.remove("active");
+    //   }
+
+    //   if(activeConcentrations[0] == "All"){
+    //     activeConcentrations = [columnName];
+    //   }else{
+    //     activeConcentrations.push(columnName);
+    //   }
+    //   activeSelection = activeConcentrations;
+    // }else{
+    //   if(newButton.classList.contains("active")){
+    //     newButton.classList.remove("active");
+    //     activeSelection.remove(columnName)
+    //   }else{
+    //     newButton.classList.add("active");
+    //     activeSelection.push(columnName)
+    //   }
+    // }
+    // filterSelection(columnName);
+    // console.log(activeSelection)
     // btnOff(); // turns off all active buttons
      // turn this button on
   });
@@ -178,6 +256,14 @@ function addElementNEW(columnNames, person, url, description) {
 
 window.addEventListener("DOMContentLoaded", init);
 
+
+function matchesAtLeastOne(courseElement, categories){
+  for(c of categories){
+    if (courseElement.classList.contains(c)){
+      return true;
+    }
+  }
+}
 // filter script
 function filterSelection(c) {
   var x, i;
@@ -185,15 +271,77 @@ function filterSelection(c) {
   for (i = 0; i < x.length; i++) {
     // w3RemoveClass(x[i], "show");
     // if (x[i].className.indexOf(c) > -1) w3AddClass(x[i], "show");
+    let show = false;
 
-    w3AddClass(x[i], "show")
-    for(cat of activeSelection){
-      console.log(cat)
-      if (x[i].className.indexOf(cat) == -1) w3RemoveClass(x[i], "show");
+    // w3AddClass(x[i], "show");
+    w3RemoveClass(x[i], "show")
+    // console.log(x[i].classList);
+    // let matchingConc = 0;
+    // for(conc of activeConcentrations){
+    //   if (x[i].classList.contains(conc)){
+    //     matchingConc++;
+    //   }
+    // }
+    // console.log(matchingConc)
+    // if(activeSelection.length == 0 && matchingConc == activeConcentrations.length){
+    if(activeSelection.length == 0 && matchesAtLeastOne(x[i], activeConcentrations)){
+      w3AddClass(x[i], "show");
+    }else if(matchesAtLeastOne(x[i], activeSelection) && matchesAtLeastOne(x[i], activeConcentrations)){
+      w3AddClass(x[i], "show");
     }
+    
+   
     
   }
 }
+function filterButtons(){
+  let courses = document.getElementsByClassName("filterDiv")
+  let relevantCourses = []
+  for(course of courses){
+     if(matchesAtLeastOne(course, activeConcentrations)){
+      relevantCourses.push(course)
+     }
+  };
+  console.log(courses, relevantCourses)
+  let prereqButtons = document.getElementsByClassName("prereq");
+  let toolButtons = document.getElementsByClassName("tool");
+  
+  for (let i = 0; i < prereqButtons.length; i++) {
+    let name = prereqButtons[i].innerHTML.split(" ").join("")+"$prereq";
+    console.log(name);
+    let needed = false;
+    for(course of relevantCourses){
+      if(course.classList.contains(name)){
+        needed = true;
+        break;
+      }
+    }
+    if(needed){
+      prereqButtons[i].classList.remove("hide")
+    }else{
+      prereqButtons[i].classList.add("hide")
+    }
+  }
+
+
+  for (let i = 0; i < toolButtons.length; i++) {
+    let name = toolButtons[i].innerHTML.split(" ").join("")+"$tool";
+    console.log(name);
+    let needed = false;
+    for(course of relevantCourses){
+      if(course.classList.contains(name)){
+        needed = true;
+        break;
+      }
+    }
+    if(needed){
+      toolButtons[i].classList.remove("hide")
+    }else{
+      toolButtons[i].classList.add("hide")
+    }
+  }
+}
+
 
 function w3AddClass(element, name) {
   var i, arr1, arr2;
