@@ -30,7 +30,7 @@ function showInfo(data, tabletop) {
     addButton(columnName[j]);
   }
 
-  console.log(data)
+  // console.log(data)
   // for (let i = categoryStartNum; i < columnArray.length; i++) {
   //   for (let j = 0; j < data.length; j++) {
   //     if (data[j][columnName[i]] == checked) {
@@ -302,13 +302,13 @@ function filterButtons(){
       relevantCourses.push(course)
      }
   };
-  console.log(courses, relevantCourses)
+  // console.log(courses, relevantCourses)
   let prereqButtons = document.getElementsByClassName("prereq");
   let toolButtons = document.getElementsByClassName("tool");
   
   for (let i = 0; i < prereqButtons.length; i++) {
     let name = prereqButtons[i].innerHTML.split(" ").join("")+"$prereq";
-    console.log(name);
+    // console.log(name);
     let needed = false;
     for(course of relevantCourses){
       if(course.classList.contains(name)){
@@ -326,7 +326,7 @@ function filterButtons(){
 
   for (let i = 0; i < toolButtons.length; i++) {
     let name = toolButtons[i].innerHTML.split(" ").join("")+"$tool";
-    console.log(name);
+    // console.log(name);
     let needed = false;
     for(course of relevantCourses){
       if(course.classList.contains(name)){
